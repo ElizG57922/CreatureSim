@@ -144,7 +144,7 @@ void updateDiff(vector <Creature> &creatures, int temperature, int darkness);
 	void getConditions(int &temperature, int &darkness)
 	{
 		cout<<"Creatures have fur to keep warm. If they have too little, they will freeze, and if they have too much, they will be too hot.\n"
-		    <<"0 is cold and 9 is freezing. Enter the temperature you want the creatures to start with:  ";
+		    <<"0 is warm and 9 is freezing. Enter the temperature you want the creatures to start with:  ";
 		cin>>temperature;
 		while(temperature > MAX_TRAIT || temperature < MIN_TRAIT){
 			cout<<"That is outside the allowed range of temperature. Please enter a value from 0 to 9:  ";
