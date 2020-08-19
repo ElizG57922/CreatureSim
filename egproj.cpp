@@ -49,7 +49,7 @@ void kill(vector <Creature> &creatures);
 
 void reproduce(vector <Creature> &creatures, int temperature, int darkness);
 
-int mutation();
+int mutation(int trait);
 
 int changeTemperature();
 
@@ -80,17 +80,27 @@ void updateDiff(vector <Creature> &creatures, int temperature, int darkness);
         		sort(creatures);
 	        	kill(creatures);
 	    	    reproduce(creatures, temperature, darkness);
+	    	    cout<<"One year has passed."<<endl;
 			}
 			else if(choice == '4') {
-        		sort(creatures);
-	        	kill(creatures);
-	    	    reproduce(creatures, temperature, darkness);
+				for(int i = 0; i < 100; i++) {
+            		sort(creatures);
+	            	kill(creatures);
+	    	        reproduce(creatures, temperature, darkness);
+	    	    }
 			}
 			else if(choice == '5') {
+				for(int i = 0; i < 100; i++) {
+            		sort(creatures);
+	            	kill(creatures);
+	    	        reproduce(creatures, temperature, darkness);
+	    	    }
+			}
+			else if(choice == '6') {
         	    temperature = changeTemperature();
         	    updateDiff(creatures, temperature, darkness);
 			}
-        	else if(choice == '6') {
+        	else if(choice == '7') {
         	    darkness = changeLight();
         	    updateDiff(creatures, temperature, darkness);
 			}
@@ -135,9 +145,10 @@ void updateDiff(vector <Creature> &creatures, int temperature, int darkness);
 		cout<<"1) View Creature Details\n";
 		cout<<"2) View Population Stats\n";
 		cout<<"3) Skip one year\n";
-		cout<<"4) Skip one hundred years\n";
-		cout<<"5) Change temperature\n";
-		cout<<"6) Change darkness level\n";
+		cout<<"4) Skip one hundred years with no environment changes\n";
+		cout<<"5) Skip one hundred years with no environment changes\n";
+		cout<<"6) Change temperature\n";
+		cout<<"7) Change darkness level\n";
 	  	cout<<"Q) Quit\n";
 	 	cout<<'\n'<<'\n';
 	}
@@ -184,35 +195,35 @@ void updateDiff(vector <Creature> &creatures, int temperature, int darkness);
 		for(int i = 0; i < creatures.size(); i++){
 			if(creatures[i].isAlive){
 				creatures[POPULATION - 1 - i] = creatures[i];
-				creatures[POPULATION - 1 - i].furLength += mutation();
-				if(creatures[POPULATION - 1 - i].furLength > MAX_TRAIT)
-			    	creatures[POPULATION - 1 - i].furLength = MAX_TRAIT;
-			    else if(creatures[POPULATION - 1 - i].furLength < MIN_TRAIT)
-			    	creatures[POPULATION - 1 - i].furLength = MIN_TRAIT;
-			    	
-				creatures[POPULATION - 1 - i].numEyes += mutation();
-				if(creatures[POPULATION - 1 - i].numEyes > MAX_TRAIT)
-			    	creatures[POPULATION - 1 - i].numEyes = MAX_TRAIT;
-			    else if(creatures[POPULATION - 1 - i].numEyes < MIN_TRAIT)
-			    	creatures[POPULATION - 1 - i].numEyes = MIN_TRAIT;
-
+				creatures[POPULATION - 1 - i].furLength = mutation(creatures[POPULATION - 1 - i].furLength);	
+				creatures[POPULATION - 1 - i].numEyes = mutation(creatures[POPULATION - 1 - i].numEyes);
 				creatures[POPULATION - 1 - i].diff = (int) (abs(creatures[POPULATION - 1 - i].furLength - temperature) + abs(creatures[POPULATION - 1 - i].numEyes - darkness));
 			}
 		}
 	}
 	
-	int mutation(){
+	int mutation(int trait){
 		int type = Random(0, 99);
+		int change = 0;
+		
 		if(type < 50)
-		    return 0;
+		    return trait;
 		else if(type < 70)
-		    return 1;
+		    change = 1;
 		else if(type < 90)
-		    return -1;
+		    change = -1;
 		else if(type < 95)
-		    return 2;
+		    change = 2;
 		else
-		    return -2;
+		    change = -2;
+		    
+		if(trait + change > MAX_TRAIT || trait + change < MIN_TRAIT) //make sure trait is in bounds
+		   	return trait - change;
+		else
+	        return trait + change;
+
+		    
+		return trait;
 	}
 	
 	void displayCreatures(vector <Creature> creatures) {
@@ -223,18 +234,26 @@ void updateDiff(vector <Creature> &creatures, int temperature, int darkness);
 	}
 	void displayStats(vector <Creature> creatures, int temperature, int darkness){
 		cout<<"The temperature is "<<temperature<<" and the darkness level is "<<darkness<<endl;
-		int fur[] = new int[MAX_TRAIT + 1];
-		int *eyes = new int[MAX_TRAIT + 1];
+		int fur [MAX_TRAIT + 1];
+		int eyes [MAX_TRAIT + 1];
+		
+		for(int i = 0; i < MAX_TRAIT + 1; i++){//initialize all values to 0
+			fur[i] = 0;
+			eyes[i] = 0;
+		}
+		
 		for(int i = 0; i < POPULATION; i++){
 			fur[creatures[i].furLength]++;
 			eyes[creatures[i].numEyes]++;
 		}
-		cout<<"Fur length      Number of creatures"<<endl;
+		cout<<"\nFur length      Number of creatures"<<endl;
 		for(int i = 0; i < MAX_TRAIT + 1; i++)
 		    cout<<"        "<<i<<"         "<<fur[i]<<endl;
-		cout<<"\nEyes      Number of creatures"<<endl;
+		cout<<"\nEyes            Number of creatures"<<endl;
 		for(int i = 0; i < MAX_TRAIT + 1; i++)
-		    cout<<"  "<<i<<"         "<<eyes[i]<<endl;
+		    cout<<"          "<<i<<"         "<<eyes[i]<<endl;
+		    
+		cout<<endl;
 		    
 		delete[] fur;
 		delete[] eyes;
@@ -242,7 +261,7 @@ void updateDiff(vector <Creature> &creatures, int temperature, int darkness);
 	
 	int changeTemperature(){
 		int temperature;
-		cout<<"Please enter a temperature from 0 (cold) to 9 (hot):  ";
+		cout<<"\nPlease enter a temperature from 0 (cold) to 9 (hot):  ";
         cin>>temperature;
 	       	while(temperature > MAX_TRAIT || temperature < MIN_TRAIT){
 		        cout<<"That is outside the allowed range of temperature. Please enter a value from 0 to 9:  ";
@@ -253,7 +272,7 @@ void updateDiff(vector <Creature> &creatures, int temperature, int darkness);
 
     int changeLight(){
     	int darkness;
-    	cout<<"Please enter a darkness level from 0 (bright) to 9 (dark):  ";
+    	cout<<"\nPlease enter a darkness level from 0 (bright) to 9 (dark):  ";
     	cin>>darkness;
 	    while(darkness > MAX_TRAIT || darkness < MIN_TRAIT){
 	        cout<<"That is outside the allowed range of darkness. Please enter a value from 0 to 9:  ";
